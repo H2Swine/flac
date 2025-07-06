@@ -119,7 +119,7 @@ the FLAC website.
 
 # EXAMPLES
 
-Some typical encoding and decoding tasks using flac:
+Some typical encoding and decoding tasks using **flac**:
 
 ## Encoding examples
 
@@ -127,16 +127,16 @@ Some typical encoding and decoding tasks using flac:
 :	Encode abc.wav to abc.flac using the default compression setting. abc.wav is not deleted.
 
 `flac --delete-input-file abc.wav`
-:	Like above, except abc.wav is deleted if there were no errors.
+:	Like above, except abc.wav is deleted if there was no *error*.
 
 `flac --delete-input-file -w abc.wav`
-:	Like above, except abc.wav is deleted if there were no errors and no warnings.
+:	Like above, except abc.wav is deleted if there was no *error* and no *warning*.
 
 `flac --best abc.wav` or `flac -8 abc.wav`
 :	Encode abc.wav to abc.flac using the highest compression preset. 
 
 `flac --verify abc.wav` or `flac -V abc.wav`
-:	Encode abc.wav to abc.flac and internally decode abc.flac to make sure it matches abc.wav.
+:	Encode abc.wav to abc.flac and internally decode abc.flac to make sure the audio indeed matches abc.wav.
 
 `flac -o my.flac abc.wav`
 :	Encode abc.wav to my.flac.
@@ -145,149 +145,154 @@ Some typical encoding and decoding tasks using flac:
 :	Encode abc.aiff to abc.flac, foo.rf64 to foo.flac and bar.w64 to bar.flac
 
 `flac *.wav *.aif?`
-:	Wildcards are supported. This command will encode all .wav files and all 
-	.aif/.aiff/.aifc files (as well as other supported files ending in 
- 	.aif+one character) in the current directory.
+:	Wildcards are supported. This command will encode all .wav files and 
+	all .aif/.aiff/.aifc files (as well as other supported files ending 
+	in .aif+one character) in the current directory, outputting files 
+	with .flac extension. It will not overwrite, so if there are abc.wav 
+	and abc.aiff, the first result in abc.flac - and then next time 
+	**flac** wants to output to abc.flac, it will throw an *error* instead 
+	(and go on to encoding the next file).
 
 `flac abc.flac --force` or `flac abc.flac -f`
-:	Recompresses, keeping metadata like tags. The syntax is a little 
-	tricky: this is an *encoding* command (which is the default: you need 
-	to specify -d for decoded output), and will thus want to output the 
-	file abc.flac - which already exists. flac will require the \--force 
-	or shortform -f option to overwrite an existing file. Recompression 
-	will first write a temporary file, which afterwards replaces the old 
-	abc.flac (provided flac has write access to that file).
-	The above example uses default settings. More often, recompression is
-	combined with a different - usually higher - compression option.
- 	Note: If the FLAC file does not end with .flac - say, it is abc.fla
-	- the -f is not needed: A new abc.flac will be created and the old 
-	kept, just like for an uncompressed input file.
+:	Recompresses, keeping metadata (tags and other). Mind the syntax: 
+	This is an *encoding* command (which is the default: -d is needed 
+	for decoded output), and will thus want to output the file abc.flac
+	- which already exists. **flac** will require the \--force option (or 
+	shortform -f) to overwrite an existing file. Recompression with -f
+	will first write a temporary file, which afterwards replaces the 
+	old abc.flac (provided flac has write access to that file). 
+	The above example applies default settings. Often, recompression 
+	is done for higher compression, like e.g. flac -8f abc.flac  
+	NOTE: If the input FLAC file does not end with .flac, the output 
+	still will default to .flac extension `flac abc.fla` will create 
+	abc.flac and keep abc.fla, just like for uncompressed input file.
 
-`flac --tag-from-file="ALBUM=albumtitle.txt" -T "ARTIST=Queen" *.wav`
+`flac --tag-from-file="DESCRIPTION=notes.txt" -T "ARTIST=Queen" *.wav`
 :	Encode every .wav file in the directory and add some tags. Every 
 	file will get the same set of tags.
-	Warning: Will wipe all existing tags, when the input file is (Ogg) 
-	FLAC - not just those tags listed in the option. Use the metaflac 
-	utility to tag FLAC files.
+	CAUTION: Disables tag transfer and wipes all existing tags when the 
+	input file is (Ogg) FLAC - not just those tags set by the option. 
+	Recompression will normally transfer tags, but -T disables it 
+	completely. The **metaflac** utility can tag existing FLAC files. 
 
 `flac --keep-foreign-metadata-if-present abc.wav`
 :	FLAC files can store non-audio chunks of input WAVE/AIFF/RF64/W64
 	files. The related option \--keep-foreign-metadata works the same
-	way, but will instead exit with an error if the input has no such 
-	non-audio chunks.
-	The encoder only stores the chunks as they are, it cannot import 
-	the content into its own tags (vorbis comments). To transfer such
-	tags from a source file, use tagging software which supports them.
+	way, but will instead exit with an *error* no such chunks are found.
+	**flac** cannot import the content to FLAC tags (Vorbis comments); 
+	use instead dedicated tagging software. 
 
 `flac -Vj2 -m3fo Track07.flac  -- -7.wav`
-:	flac employs the commonplace convention that options in a short 
+:	**flac** employs the commonplace convention that options in a short 
 	version - invoked with single dash - can be shortened together until 
-	one that takes an argument. Here -j and -o do, and after the "2" a 
+	one that takes an argument. Here -j and -o do, and after the "j2" a 
 	whitespace is needed to start new options with single/double dash. 
 	The -m option does not, and the following "3" is the -3 compression
 	setting. The options could equally well have been written out as 
-	-V -j 2 -m -3 -f -o Track04.flac , or as -fo Track04.flac -3mVj2. 
-	flac also employs the convention that `-- ` (with whitespace!) 
+	-V -j 2 -m -3 -f -o Track07.flac , or as -foTrack07.flac -3mVj2. 
+	**flac** also employs the convention that `-- ` (with whitespace!) 
 	signifies end of options, treating everything to follow as filename.
-	That is needed when an input filenames could otherwise be read as an
+	That is needed when an input filename could otherwise be read as an
 	option, and "-7" is one such.
 	In total, this line takes the input file -7.wav as input; -o will 
 	give output filename as Track07.flac, and the -f will overwrite if 
-	the file Track04.flac is already present. The encoder will select 
+	the file Track07.flac is already present. The encoder will select 
 	encoding preset -3 modified with the -m switch, and use two CPU 
-	threads. Afterwards, the -V will make it decode the flac file and 
+	threads. Afterwards, the -V will make it decode the FLAC file and 
 	compare the audio to the input, to ensure they are indeed equal. 
-
 
 ## Decoding examples
 
 `flac --decode abc.flac` or `flac -d abc.flac`
 :	Decode abc.flac to abc.wav. abc.flac is not deleted. If abc.wav is
-	already present, the process will exit with an error instead of 
+	already present, the process will exit with an *error* instead of 
 	overwriting; use --force / -f to force overwrite.
 	NOTE: A mere flac abc.flac *without --decode or its shortform -d*, 
-	would mean to re-encode abc.flac to abc.flac (see above), and that 
+	would mean to re-encode abc.flac to abc.flac (see above), and that
 	command would err out because abc.flac already exists.
 
 `flac -d --force-aiff-format abc.flac` or `flac -d -o abc.aiff abc.flac`
 :	Two different ways of decoding abc.flac to abc.aiff (AIFF format).
 	abc.flac is not deleted. -d -o could be shortened to -do.
- 	The decoder can force other output formats, or different versions 
+	The decoder can force other output formats, or different versions 
 	of the WAVE/AIFF formats, see the options below.
 
 `flac -d --keep-foreign-metadata-if-present abc.flac`
 :	If the FLAC file has non-audio chunks stored from the original
 	input file, this option will restore both audio and non-audio. 
 	The chunks will reveal the original file type, and the decoder 
-	will select output format and output file extension accordingly 
-	- note that this is not compatible with forcing a particular 
-	output format except if it coincides with the original, as the
-	decoder cannot transcode non-audio between formats.
-	If there are no such chunks stored, it will decode to abc.wav.
-	The related option \--keep-foreign-metadata will instead exit 
-	with an error if no such non-audio chunks are found.
+	will select output format and output file extension accordingly. 
+	If attempting to force a particular output format, including with
+	e.g. -o abc.wav, it must be the correct one according to the 
+	metadata chunk - the decoder cannot convert chunks between formats.
+	(If there are no such chunks stored, it will decode to abc.wav, 
+	with a *warning*, whereas the related \--keep-foreign-metadata 
+	option would exit with an *error* rather than decoding.)
 
 `flac -d -F abc.flac`
-:	Decode abc.flac to abc.wav and don't abort if errors are found.
-	This is potentially useful for recovering as much as possible from 
-	a corrupted file.
-	Note: Be careful about trying to "repair" files this way. Often it
-	will only conceal an error, and not play any subjectively "better"
-	than the corrupted file. It is a good idea to at least keep it,
-	and possibly try several decoders, including the one that generated 
-	the file, and hear if one has less detrimental audible errors than 
-	another. Make sure output volume is limited, as corrupted audio can
-	generate loud noises.
+:	Decode abc.flac to abc.wav, not aborting upon *error*. Potentially
+	useful for recovering as much as possible from a corrupted file.  
+	CAUTION: Be careful about trying to "repair" files this way. Often 
+	it will only conceal errors, and not play any subjectively 
+	"better" than the corrupted source file. It is a good idea to keep 
+	the source, and if possible: try several decoders including the one 
+	that generated the file (3rd party or older **flac**); and, listen 
+	if one has less detrimental audible flaws than another (at limited 
+	output volume - corrupted audio can generate loud noises). 
 
 
 # OPTIONS
 
-A summary of options is included below. Several of the options can be 
-negated, see the **Negative options** section below. 
-
+A summary of options follows; see also subsection **Negative options** for 
+negating options. The **Format options** subsection describes ways to 
+select format upon decoding, and upon encoding from raw or to Ogg FLAC.
 
 ## GENERAL OPTIONS
 
 **-v**, **\--version**
-:	Show the flac version number, and quit.
+:	Show the **flac** version number, and quit.
 
 **-h**, **\--help**
 :	Show basic usage and a list of all options, and quit.
 
 **-d**, **\--decode**
-:	Decode (the default behavior is to encode)
+:	Decode (the default is to encode, thus to re-encode if the infile is
+	(Ogg) FLAC). Will exit with an *error* if the audio bit stream is not
+	valid, including incorrect MD5 checksum. (-F will ignore any *error*.)
 
 **-t**, **\--test**
-:	Test a flac encoded file. This works the same as -d except no
-	decoded file is written, and with some additional checks like parsing
-	of all metadata blocks.
+:	Test a FLAC / Ogg FLAC encoded file. Works like -d except no decoded 
+	output, but does some additional checks (including metadata). 
 
 **-a**, **\--analyze**
-:	Analyze a FLAC encoded file. This works the same as -d except the 
-	output is an analysis file, not a decoded file.
+:	Analyze a FLAC / Ogg FLAC encoded file. Works like -d except the 
+	output is an analysis file (.ana by default), not a decoded file.
 
 **-c**, **\--stdout**
-:	Write output to stdout
+:	Write output to stdout.
 
 **-f**, **\--force**
-:	Force overwriting of output files. By default, flac warns that the
-	output file already exists and continues to the next file.
+:	Force overwriting output files. Without this option, the default is 
+	to give a *warning* that the output file already exists, skip it and 
+	continue to the next file.
 
 **\--delete-input-file**
-:	Automatically delete the input file after a successful encode or
-	decode. If there was an error (including a verify error) the input
-	file is left intact.
+:	(Ignored for -a and -t modes.) Automatically delete the input file 
+	upon successful encode or decode. If there was an *error* 
+	(including a verify error) the input file is left intact.  
+	Use -w to retain the input file also when there is a *warning*.
 
 **-o** *FILENAME*, **\--output-name**=*FILENAME*
-:	Force the output file name (usually flac just changes the extension).
-	May only be used when encoding a single file. May not be used in
-	conjunction with \--output-prefix.
+:	Set output file name (usually **flac** merely changes the extension); 
+	and upon decoding, set also output file *type* by file extension. 
+	Quote filename as needed. Option can only be used when processing a 
+	single file. May not be used in conjunction with \--output-prefix. 
 
 **\--output-prefix**=*STRING*
-:	Prefix each output file name with the given string. This can be
-	useful for encoding or decoding files to a different directory. Make
-	sure if your string is a path name that it ends with a trailing \`/'
-	(slash).
+:	Prefix each output file name with the given string. Quote as needed.
+	This can also be useful for outputting to a different directory - if 
+	so, make sure the directory exists, and that the *STRING* ends with 
+	a directory slash \`/' (not a Windows-style backslash).
 
 **\--preserve-modtime**
 :	(Enabled by default.) Output files have their timestamps/permissions 
@@ -295,98 +300,119 @@ negated, see the **Negative options** section below.
 	output files have the current time and default permissions.
 
 **\--keep-foreign-metadata**
-:	If encoding, save WAVE, RF64, or AIFF non-audio chunks in FLAC
-	metadata. If decoding, restore any saved non-audio chunks from FLAC
-	metadata when writing the decoded file. Foreign metadata cannot be
-	transcoded, e.g. WAVE chunks saved in a FLAC file cannot be restored
-	when decoding to AIFF. Input and output must be regular files (not
-	stdin or stdout). With this option, FLAC will pick the right output
-	format on decoding. It will exit with error if no such chunks are found.
+:	Store/restore non-audio chunks of WAVE, RF64, Wave64 or AIFF files. 
+	Input and output must be regular files (not stdin nor stdout). 
+	Encoding: store these chunks as an APPLICATION metadata block. 
+	(Upon re-encoding, any stored chunks will be retained automatically, 
+	no matter whether **\--keep-foreign-metadata** is given or not.)  
+	Decoding: restore any saved non-audio chunks to the decoded file,
+	where output file type will be set according to metadata. 
+	When this option is given, **flac** will exit with *error* if no such 
+	chunks are found (use **\--keep-foreign-metadata-if-present** instead) 
+	or if trying to decode to a file type not matching these chunks. 
+	NOTE: **flac** cannot transcode foreign metadata; e.g. WAVE chunks can
+	not be converted to FLAC tags, nor be restored when decoding to AIFF.
 
 **\--keep-foreign-metadata-if-present**
-:	Like \--keep-foreign-metadata, but without throwing an error if
-	foreign metadata cannot be found or restored. Instead, prints a 
-	warning.
+:	Like \--keep-foreign-metadata, but will continue (although print a 
+	*warning*) if no foreign metadata can be found or restored. Will 
+	exit with *error* upon trying to decode to mismatching file type.
 
 **\--skip**={\#\|*MM:SS*}
-:	Skip the first number of samples of the input. To skip over a given
-	initial time, specify instead minutes and seconds: there must then 
-	be at least one digit on each side of the colon sign. Fractions of a 
-	second can be specified, with locale-dependent decimal point, e.g.
-	\--skip=123:9,867 if your decimal point is a comma. 
-	A \--skip option is applied to each input file if more are given. 
+:	Skip the first \# samples of the input (of *each* input file);
+	Alternatively: skip the first *MM:SS* minutes and seconds (needs at 
+	least one digit on each side of the colon sign). Decimal point 
+	must be locale-dependent, e.g. \--skip=0:9,87 in case of a comma.  
 	This option cannot be used with -t. When used with -a, the analysis
-	file will enumerate frames from starting point.
-	
-**\--until**={\#\|\[+\|\]*MM:SS*}
-:	Stop at the given sample number (which is not included). A negative
-	number is taken relative to the end of the audio, a \`+' (plus) 
-	sign means that the \--until point is taken relative to the \--skip 
-	point. For other considerations, see \--skip. 
+	file will enumerate frames starting from the \--skip point.
+
+**\--until**=\[+\|-\]{\#\|*MM:SS*}
+:	Processes only \# samples; counting from the beginning by default, 
+	although: from the end (= the last \# samples) if a \`-' (negative 
+	sign) is given, or from the \--skip point if a \`+' (plus sign) is 
+	given. See \--skip for *MM:SS* and other considerations.
 
 **-s**, **\--silent**
-:	Silent mode (do not write runtime encode/decode statistics to stderr)
+:	Do not print runtime encode/decode statistics to console/stderr.
 
 **\--totally-silent**
-: Do not print anything of any kind, including warnings or errors. The
-	exit code will be the only way to determine successful completion.
+:	Do not print anything of any kind, including *warnings* or *errors*. 
+	Only the exit code will inform about successful completion or not.
 
 **-w**, **\--warnings-as-errors**
-:	Treat all warnings as errors (which cause flac to terminate with a
-	non-zero exit code).
+:	Treat any *warning* as an *error*, causing **flac** to terminate with a
+	non-zero exit code.
+
+**\--** 
+:	End of options; everything following `-- ` is input file(s) even if 
+	starting with "-". E.g. `flac -d *.flac` fails upon encountering the
+	file "-1.flac", but `flac -d -- *.flac` works.
 
 
 ## DECODING OPTIONS
 
+For output format selection, see the **Format options** subsection. 
+
 **-F**, **\--decode-through-errors**
-:	By default flac stops decoding with an error message and removes the
-	partially decoded file if it encounters a bitstream error. With -F,
-	errors are still printed but flac will continue decoding to
-	completion. Note that errors may cause the decoded audio to be
-	missing some samples or have silent sections.
+:	Bitstream errors will by default make the decoder exit with an
+	*error* message and remove the partially decoded file. -F overrides, 
+	and will continue decoding; *error* messages are still printed.  
+	This option cannot be used with \--decode-chained-stream with Ogg.  
+	CAUTION: Corrupted blocks will be muted or removed: the decoder will 
+	not attempt to "reconstruct" any content of blocks with corruption. 
+	*Re-encoding* with -F is typically not advised: it will encode the 
+	decoded audio (with any flaws it might have) to an output file that 
+	has no information that the source was corrupted, nor how/where.
 
 **\--cue**=\[\#.#\]\[-\[\#.#\]\]
 :	Set the beginning and ending cuepoints to decode. Decimal points are
-	locale-dependent (dot or comma). The optional first \#.# is the track
-	and index point at which decoding will start; the default is the
-	beginning of the stream. The optional second \#.# is the track and
-	index point at which decoding will end; the default is the end of
-	the stream. If the cuepoint does not exist, the closest one before
-	it (for the start point) or after it (for the end point) will be
-	used. If those don't exist , the start of the stream (for the start
-	point) or end of the stream (for the end point) will be used. The
-	cuepoints are merely translated into sample numbers then used as
-	\--skip and \--until. A CD track can always be cued by, for example,
-	\--cue=9.1-10.1 for track 9, even if the CD has no 10th track.
+	locale-dependent (dot or comma). The first \#.# is the track and index
+	point at which decoding will start; the second \#.# is the track and
+	index point at which decoding will end. Both are optional, defaulting 
+	to start of stream resp. end of stream. If the cuepoint does not exist, 
+	the decoder will select the closest one before (for start point) or 
+	after (for end point), or start of stream resp. end of stream if it
+	does not exist. Example: A CD track 9 can be cued by \--cue=9.1-10.1 
+	even if the CD has no 10th track. This option cannot be used in 
+	conjunction with \--skip nor \--until, and cannot be used with -t.
 
 **--decode-chained-stream**
-: Decode all links in a chained Ogg stream, not just the first one.
+:	Ogg FLAC only: Decode all links in a chained Ogg stream, not just the 
+	first one. Cannot be used with \--cue, \--skip, \--until, nor with -F.
 
 **\--apply-replaygain-which-is-not-lossless**\[=*SPECIFICATION*\]
-:	Applies ReplayGain values while decoding. **WARNING: THIS IS NOT
-	LOSSLESS. DECODED AUDIO WILL NOT BE IDENTICAL TO THE ORIGINAL WITH
-	THIS OPTION.** This option is useful for example in transcoding
-	media servers, where the client does not support ReplayGain. For
-	details on the use of this option, see the section **ReplayGain
-	application specification**.
+:	Alters volume of the output stream, applying ReplayGain tag values.  
+	**CAUTION: NOT LOSSLESS - MAKES IRREVERSIBLE CHANGES TO DECODED AUDIO** 
+	(The option will therefore make the decoder print a *warning* - but 
+	the -w option will not treat this warning as an *error*.)  
+	Might be useful in transcoding media servers where the client does 
+	not support ReplayGain. For usage, see subsection 
+	**Applying ReplayGain (non-losslessly) to decoding: specfication**.
 
 
 ## ENCODING OPTIONS
 
-Encoding will default to -5, -A "tukey(5e-1)" and one CPU thread.
+The encoder will auto-detect input format except headerless raw PCM, and 
+by default output *.flac* file extension - though *.oga* if \--ogg sets 
+Ogg FLAC output. See subsection **Format options** for raw / Ogg FLAC.
 
-**-V**, **\--verify**
-:	Verify a correct encoding by decoding the output in parallel and
-	comparing to the original.
+### Options for compression and audio processing
+
+Encoding defaults to the -5 compression preset, and single-threaded.  
+Each preset -0 to -8 is a synonym for a set of options, which in turn 
+are explained following the description of -8 below. All presets comply 
+with the stricter *streamable subset* of the FLAC format (see RFC 9639 
+section 7). Options that could for any signal produce non-*subset* FLAC, 
+require the \--lax option (or the encoder will exit with an *error*).
 
 **-0**, **\--compression-level-0**, **\--fast**
 :	Fastest compression preset. Currently synonymous with `-l 0 -b 1152 -r 3 --no-mid-side`
 
 **-1**, **\--compression-level-1**
-:	Currently synonymous with `-l 0 -b 1152 -M -r 3`
+:	Currently synonymous with `-l 0 -b 1152 -M -r 3`, i.e. `-0M` 
 
 **-2**, **\--compression-level-2**
-:	Currently synonymous with `-l 0 -b 1152 -m -r 3`
+:	Currently synonymous with `-l 0 -b 1152 -m -r 3`, i.e. `-0m`
 
 **-3**, **\--compression-level-3**
 :	Currently synonymous with `-l 6 -b 4096 -r 4 --no-mid-side`
@@ -395,7 +421,7 @@ Encoding will default to -5, -A "tukey(5e-1)" and one CPU thread.
 :	Currently synonymous with `-l 8 -b 4096 -M -r 4`
 
 **-5**, **\--compression-level-5**
-:	Currently synonymous with `-l 8 -b 4096 -m -r 5`
+:	Default. Currently synonymous with `-l 8 -b 4096 -m -r 5`
 
 **-6**, **\--compression-level-6**
 :	Currently synonymous with `-l 8 -b 4096 -m -r 6 -A "subdivide_tukey(2)"`
@@ -407,18 +433,16 @@ Encoding will default to -5, -A "tukey(5e-1)" and one CPU thread.
 :	Currently synonymous with `-l 12 -b 4096 -m -r 6 -A "subdivide_tukey(3)"`
 
 **-l** \#, **\--max-lpc-order**=\#
-:	Specifies the maximum LPC order. This number must be \<= 32. 
-	For subset streams, it must be \<=12 if the sample rate is \<=48kHz. 
-	If 0, the encoder will not attempt generic linear prediction, and 
-	only choose among a set of fixed (hard-coded) predictors. Restricting 
-	to fixed predictors only is faster, but compresses weaker - typically 
-	five percentage points / ten percent larger files.
+:	Sets the maximum LPC order. This number must be \<= 32. 
+	For *subset* streams, it must be \<=12 if the sample rate is \<=48kHz. 
+	If set to 0, the encoder will not attempt generic linear prediction, and
+	choose only among a set of "fixed" predictors hard-coded in the FLAC 
+	format - faster, but compresses weaker (typically a few percent). 
 
 **-b** \#, **\--blocksize**=\#
-:	Specify the blocksize in samples. The current default is 1152 for 
-	-l 0, else 4096. Blocksize must be between 16 and 65535 (inclusive). 
- 	For subset streams it must be \<= 4608 if the samplerate is \<= 48kHz,
-	for subset streams with higher samplerates it must be \<= 16384.
+:	Sets blocksize in samples, 16 \<= \# \<= 65535. Current default is
+	1152 for -l 0, else 4096. For *subset* streams, \# must be \<= 4608 
+	if the sample rate is \<= 48kHz and \<= 16384 for higher sample rates. 
 
 **-m**, **\--mid-side**
 :	Try mid-side coding for each frame in addition to left and right, and 
@@ -429,14 +453,15 @@ Encoding will default to -5, -A "tukey(5e-1)" and one CPU thread.
 	compression).
 
 **-r** \[\#,\]\#, **\--rice-partition-order**=\[\#,\]\#
-:	Set the \[min,\]max residual partition order (0..15). For subset 
-	streams, max must be \<=8. min defaults to 0. Default is -r 5.
+:	Set the \[min,\]max residual partition order (0..15). For *subset* 
+	streams, "max" must be \<=8. "min" defaults to 0. Default is -r 5.
 	Actual partitioning will be restricted by block size and prediction 
 	order, and the encoder will silently reduce too high values. 
 
 **-A** *FUNCTION(S)*, **\--apodization**=*FUNCTION(S)*
-:	Window audio data with given apodization function. More can be given, 
-	comma-separated. See section **Apodization functions** for details.
+:	Apply apodization *FUNCTION* in the LPC analysis (if more are given: 
+	try them all), see subsection **Apodization functions for encoding** 
+	for how to use this option. Does nothing if using -l 0.
 
 **-e**, **\--exhaustive-model-search**
 :	Do exhaustive model search (expensive!).
@@ -448,19 +473,29 @@ Encoding will default to -5, -A "tukey(5e-1)" and one CPU thread.
 	quantization below the \# number by signal and prediction order.
 
 **-p**, **\--qlp-coeff-precision-search**
-:	Do exhaustive search of LP coefficient precision (expensive!).
-	Overrides -q; does nothing if using -l 0.
+:	Do exhaustive search for optimal LP coefficient precision 
+	(expensive!). Overrides -q; does nothing if using -l 0.
 
 **\--lax**
-:	Allow encoding to non-*subset* FLAC files (see RFC 9639 section 7). 
-	WARNING: may cause some applications (especially legacy hardware 
-	devices) to fail streaming or playback.
+:	Allow encoding to non-*subset* FLAC files, see RFC 9639 section 7.  
+	CAUTION: non-*subset* files may fail decoding/streaming/playback 
+	in certain applications (especially legacy hardware devices).
 
 **\--limit-min-bitrate**
-:	Limit minimum bitrate by not allowing frames consisting of only 
-	constant subframes. This ensures a bitrate of at least 1 bit/sample, 
-	for example 48kbit/s for 48kHz input. This is mainly useful for 
-	internet streaming.
+:	Ensure that bitrate stays at least 1 bit/sample at any time (e.g. 
+	48 kbit/s for 48 kHz). Mainly useful for internet streaming.
+
+**\--ignore-chunk-sizes**
+:	Ignore file size headers in WAVE or AIFF source files. Useful when 
+	certain applications write malformed WAVE/AIFF files allowing the 
+	audio to extend past the maximum possible size of the format; this 
+	option reads to the end of file, intended to capture all audio.  
+	CAUTION: Use only when needed. Even if those malformed files described
+	are often intended to be read this way, *compliant* files could have 
+	the audio chunk followed by data (tags including pictures), and which 
+	will then be (mis-) interpreted as audio by \--ignore-chunk-sizes. 
+	Thus, this option cannot be used with \--keep-foreign-metadata /
+	\--keep-foreign-metadata-if-present, nor \--cue, \--cuesheet, \--until. 
 
 **-j** \#, **\--threads**=\#
 :	By default, **flac** will encode with one thread. This option enables 
@@ -468,171 +503,178 @@ Encoding will default to -5, -A "tukey(5e-1)" and one CPU thread.
 	encoder decide. Currently, -j 0 is synonymous with -j 1 (i.e. no
 	multithreading), and the max supported number is 64; both could change
 	in the future. If \# exceeds the supported maximum (64), **flac** will 
-	encode with a single thread (and throw a warning). The same happens 
+	encode with a single thread (and throw a *warning*). The same happens 
 	(for any \#) if **flac** was compiled with multithreading disabled. 
 	NOTE: Exceeding the *actual* available CPU threads, harms speed.
 
-**\--ignore-chunk-sizes**
-:	When encoding to flac, ignore the file size headers in WAV and AIFF
-	files to attempt to work around problems with over-sized or malformed
-	files. WAV and AIFF files both specifies length of audio data with
- 	an unsigned 32-bit number, limiting audio to just over 4 gigabytes. 
-	Files larger than this are malformed, but should be read correctly 
- 	using this option. Beware however, it could misinterpret any data 
-	following the audio chunk, as audio.
+**-V**, **\--verify**
+:	Verify a correct encoding by decoding the output in parallel and
+	comparing the audio bit by bit to the original.
 
-**\--replay-gain**
-:	Calculate ReplayGain values and store them as FLAC tags, similar to
-	vorbisgain. Title gains/peaks will be computed for each input file,
-	and an album gain/peak will be computed for all files. All input
-	files must have the same resolution, sample rate, and number of
-	channels. Only mono and stereo files are allowed, and the sample
-	rate must be 8, 11.025, 12, 16, 18.9, 22.05, 24, 28, 32, 36, 37.8,
-	44.1, 48, 56, 64, 72, 75.6, 88.2, 96, 112, 128, 144, 151.2, 176.4,
-	192, 224, 256, 288, 302.4, 352.8, 384, 448, 512, 576, or 604.8 kHz.
-	Also note that this option may leave a few extra bytes in a PADDING
-	block as the exact size of the tags is not known until all files
-	are processed. Note that this option cannot be used when encoding
-	to standard output (stdout).
+### Options for metadata
+
+Options can be repeated, e.g. -T "COMPOSER=Mann" -T "COMPOSER=Weil".
+
+**\--picture**={*FILENAME\|SPECIFICATION*}
+:	Import a picture and store it in a PICTURE metadata block, one per 
+	\--picture option given (keeping existing ones upon re-encoding). 
+	A *FILENAME* argument is shorthand for a *SPECIFICATION* with default 
+	values applied (type set to front cover, properties to be inferred 
+	from the picture file); see subsection **Picture specification**.
+	Currently the **flac** encoder handles up to 64 \--picture options; 
+	for more, add afterwards (**metaflac** or tagging software).  
+	NOTE: The FLAC format is limited to 16 MiB *total* metadata. Also, 
+	several applications may reject FLAC files with very high *total* 
+	picture count (like a thousand) even when the 16 MiB bound is met. 
 
 **\--cuesheet**=*FILENAME*
 :	Import the given cuesheet file and store it in a CUESHEET metadata
-	block. This option may only be used when encoding a single file. A
-	seekpoint will be added for each index point in the cuesheet to the
-	SEEKTABLE unless \--no-cued-seekpoints is specified.
-
-**\--picture**={*FILENAME\|SPECIFICATION*}
-:	Import a picture and store it in a PICTURE metadata block. More than
-	one \--picture option can be specified. Either a filename for the
-	picture file or a more complete specification form can be used. The
-	*SPECIFICATION* is a string whose parts are separated by \| (pipe)
-	characters. Some parts may be left empty to invoke default values.
-	Specifying only *FILENAME* is just shorthand for "\|\|\|\|FILENAME". 
-	See the section **Picture specification** for *SPECIFICATION* format.
+	block. This option may only be used when encoding a single file. 
+	Each index point will get a seekpoint added to the SEEKTABLE, 
+	unless overridden by \--no-cued-seekpoints.
 
 **\--no-utf8-convert**
-:	Upon tagging, do not convert tags from local charset to UTF-8. This 
-	is useful for scripts, and for setting tags in situations where the 
-	locale is wrong. This option must appear *before* any tag options!
+:	Upon tagging, do *not* convert tags from local charset to UTF-8. 
+	This is useful for scripts, and for overriding a wrong locale.  
+	NOTE: This option must appear *before* the tag options!
 
 **-T** "*FIELD=VALUE*"**, \--tag**="*FIELD=VALUE*"
-:	Add a FLAC tag. The comment must adhere to the Vorbis comment spec;
-	i.e. the FIELD must contain only legal characters, terminated by an
-	'equals' sign. Make sure to quote the content if necessary. This
-	option may appear more than once to add several Vorbis comments. 
-	NOTE 1: All tags will be added to all encoded files.
-	NOTE 2: Upon re-encoding a file with one or more -T or \--tag
-	options, all tags in the input file will be ignored, not only those
-	set with -T / \--tag. 
+:	Set a FLAC tag; like Ogg, the FLAC format uses Vorbis comments, see 
+	the format specification section 8.6. Quote content as necessary.
+	NOTE: All -T options will apply to every output (Ogg) FLAC file.
+	CAUTION: -T or \--tag or \--tag-from-file will completely disable 
+	the usual tag transfer from FLAC sources. Do not use -T upon 
+	re-encoding unless you want to erase *all* existing tags. 
 
 **\--tag-from-file**="*FIELD=FILENAME*"
-:	Like \--tag, except FILENAME is a file whose contents will be read
-	verbatim to set the tag value. The contents will be converted to
-	UTF-8 from the local charset. This can be used to store a cuesheet
-	in a tag (e.g. \--tag-from-file="CUESHEET=image.cue").  
+:	Like \--tag, except populates the FIELD by the verbatim content of 
+	file FILENAME, for example \--tag-from-file="LYRICS=hello.lrc"  
 	NOTE: Do not try to store binary data in tag fields! Use PICTURE 
-	blocks for pictures and APPLICATION blocks for other binary data. 
+	blocks for pictures and APPLICATION blocks for other binary data.
 
-**-S** {\#\|X\|\#x\|\#s}, **\--seekpoint**={\#\|X\|\#x\|\#s}
-:	Specifies point(s) to include in SEEKTABLE, to override the encoder's
-	default choice of one per ten seconds ('-s 10s'). Using \#, a seek point 
-	at that sample number is added. Using X, a placeholder point is added 
-	at the end of a the table. Using \#x, \# evenly spaced seek points will
-	be added, the first being at sample 0. Using \#s, a seekpoint will be
-	added every \# seconds, where decimal points are locale-dependent, e.g. 
-	'-s 9.5s' or '-s 9,5s'. 
-	Several -S options may be given; the resulting SEEKTABLE will contain 
-	all seekpoints specified (duplicates removed).
-	Note: '-S \#x' and '-S \#s' will not work if the encoder cannot 
-	determine the input size before starting. Note: if you use '-S \#' with 
-	\# being \>= the number of samples in the input, there will be either no 
-	seek point entered (if the input size is determinable before encoding 
-	starts) or a placeholder point (if input size is not determinable).
+**\--replay-gain**
+:	Calculate ReplayGain values and store them as FLAC tags, using the 
+	original ReplayGain algorithm (similar to vorbisgain; not EBU128). 
+	Track gain / track peak will be computed for each input file, and 
+	an album gain/peak will be computed over all input files. 
+	Only mono and stereo are supported, and all files must share channel 
+	count, bits per sample, and sample rate, which also must be among 
+	the following: 8, 11.025, 12, 16, 18.9, 22.05, 24, 28, 32, 36, 37.8, 
+	44.1, 48, 56, 64, 72, 75.6, 88.2, 96, 112, 128, 144, 151.2, 176.4, 
+	192, 224, 256, 288, 302.4, 352.8, 384, 448, 512, 576, or 604.8 kHz.  
+	NOTE: This option cannot be used when encoding to stdout nor Ogg FLAC.
+
+**-S** {\#\|\#x\|\#s\|X}, **\--seekpoint**={\#\|\#x\|\#s\|X}
+:	Sets seekpoint(s), overriding the default choice of one per ten seconds
+	('-s 10s'). Several -S options may be given; the resulting SEEKTABLE 
+	will contain all the seekpoints (duplicates removed), max 32768.  
+	Seekpoints will be added as follows: \# for one at that sample number, 
+	ignored if exceeding the total sample count; \#x for \# evenly spaced 
+	seek points, the first at sample 0; \#s for one every \# seconds (with 
+	locale-dependent decimal point, e.g. '-s 9.5s' or '-s 9,5s'). X will 
+	add a *placeholder point* at the end of the table.  
+	NOTE: If the encoder cannot determine the input size before starting,
+	'-S \#' results in a placeholder, while \#x and \#s will be ignored.
 	Use \--no-seektable for no SEEKTABLE. 
 
 **-P** \#, **\--padding**=\#
-:	(Default: 8192 bytes, although 65536 for input above 20 minutes.) 
-	Tell the encoder to write a PADDING metadata block of the given
-	length (in bytes) after the STREAMINFO block. This is useful for 
- 	later tagging, where one can write over the PADDING block instead 
-	of having to rewrite the entire file. Note that a block header 
-	of 4 bytes will come on top of the length specified.
+:	(Default: 8192, although 65536 for input above 20 minutes. A 4-byte
+	block header will come on top.) Writes a PADDING block of the given 
+	length (in bytes) in the metadata section, before the audio. Useful 
+	for later tagging, whereupon the PADDING block can be overwritten 
+	instead of having to rewrite the entire file.
 
 
 ## FORMAT OPTIONS
 
-Encoding defaults to FLAC and not OGG. Decoding defaults to WAVE (more
-specifically WAVE\_FORMAT\_PCM for mono/stereo with 8/16 bits, and to 
-WAVE\_FORMAT\_EXTENSIBLE otherwise), except: will be overridden by chunks 
-found by \--keep-foreign-metadata-if-present or \--keep-foreign-metadata 
+**flac** usually auto-detects input file type no matter file extension. 
+For Ogg FLAC and raw PCM options, see after the next subsection.
 
-**\--ogg**
-:	When encoding, generate Ogg FLAC output instead of native FLAC. Ogg
-	FLAC streams are FLAC streams wrapped in an Ogg transport layer. The
-	resulting file should have an '.oga' extension and will still be
-	decodable by flac. When decoding, force the input to be treated as
-	Ogg FLAC. This is useful when piping input from stdin or when the
-	filename does not end in '.oga' or '.ogg'.
+### Decoding output options
 
-**\--serial-number**=\#
-:	When used with \--ogg, specifies the serial number to use for the
-	first Ogg FLAC stream, which is then incremented for each additional
-	stream. When encoding and no serial number is given, flac uses a
-	random number for the first stream, then increments it for each
-	additional stream. When decoding and no number is given, flac uses
-	the serial number of the first page.
+Decoding defaults to WAVE (selecting WAVE\_FORMAT\_PCM for mono/stereo 
+with 8/16 bits, and WAVE\_FORMAT\_EXTENSIBLE otherwise), except: will be 
+overridden by chunks found by \--keep-foreign-metadata-if-present or 
+\--keep-foreign-metadata or output filename extension selected by -o. 
+If conflicting formats are specified - including through keeping 
+incompatible foreign metadata - the decoder will exit with an *error*.
 
 **\--force-aiff-format**  
 **\--force-rf64-format**  
 **\--force-wave64-format**
-:	For decoding: Override default output format and force output to 
-	AIFF/RF64/WAVE64, respectively.
-	This option is not needed if the output filename (as set by -o) 
-	ends with *.aif* or *.aiff*, *.rf64* and *.w64* respectively. 
- 	The encoder auto-detects format and ignores this option. 
+:	Force output to AIFF/RF64/WAVE64, respectively. Not needed if -o 
+	sets a filename ending with *.aif* / *.aiff* or with *.rf64* or 
+	with *.w64*, respectively. (Currently, -o out.aifc does *not* 
+	imply any output format, but that may change in the future.)
 
 **\--force-legacy-wave-format**  
 **\--force-extensible-wave-format**
-:	Instruct the decoder to output a WAVE file with WAVE\_FORMAT\_PCM and
-	WAVE\_FORMAT\_EXTENSIBLE respectively, overriding default choice.
+:	Set output to WAVE\_FORMAT\_PCM and WAVE\_FORMAT\_EXTENSIBLE 
+	respectively, overriding default choice of WAVE format.
 
 **\--force-aiff-c-none-format**  
 **\--force-aiff-c-sowt-format**
-:	Instruct the decoder to output an AIFF-C file with format NONE and
-	sowt respectively.
+:	Set output to AIFF-C with format "NONE" resp. "sowt". For 
+	compatibility, sowt should likely be restricted to 16-bit signals.
+
+### Ogg FLAC format options
+
+**\--ogg**
+:	When (re-)encoding, output to Ogg FLAC (FLAC stream in Ogg container) 
+	instead of native FLAC. Will default to .oga file extension.  
+	When decoding, force the input to be treated as Ogg FLAC. 
+
+**\--serial-number**=\#
+:	For Ogg FLAC: assign *serial number* to the first Ogg FLAC stream
+	(default: a random number). Encoder will increment for next stream.
+	Default for decoding: serial number of the first page.
+
+### Raw PCM format options
+
+For raw PCM, the format must be specified by the user - although for 
+decoding, only the properties not known from the FLAC stream (sign and
+endianness). **flac** will exit with an *error* both upon a missing 
+mandatory option, and upon encountering one that should not be there.
+
+The first of these is mainly for decoding: 
 
 **\--force-raw-format**
-:	Force input (when encoding) or output (when decoding) to be treated
-	as raw samples (even if filename suggests otherwise).
-
-### raw format options
-
-When encoding from or decoding to raw PCM, format must be specified.
+:	Decoding: set output to raw samples. Output will default to *.raw* file 
+	extension but the decoder will not object if -o sets a different one.  
+	Encoding from uncompressed: the option should usually be omitted, as 
+	the mandatory raw options will make the encoder treat input as raw; 
+	to guard against user mistakes, the encoder will normally print a 
+	*warning* if encountering a WAVE/AIFF/RF64/W64 input file to be
+	treated as raw, but \--force-raw-format will suppress this warning.  
+	Re-encoding from FLAC or Ogg FLAC: If you really wish to treat a FLAC 
+	or Ogg FLAC as raw, you need to invoke \--force-raw-format, as **flac**
+	will otherwise exit with an *error* (again, to guard against mistakes).
 
 **\--sign**={signed\|unsigned}
-:	Specify the sign of samples.
+:	(Input from raw or output to raw) Specify the sign of samples.
 
 **\--endian**={big\|little}
-:	Specify the byte order for samples
+:	(Input from raw or output to raw) Specify the byte order of samples.
 
 **\--channels**=\#
 :	(Input only) specify number of channels. The channels must be 
-	interleaved, and in the order of the FLAC format (see the format
-	specification); the encoder (/decoder) cannot re-order channels.
+	interleaved, and in the order of the FLAC format, see the format
+	specification; the encoder (/decoder) cannot re-order channels.
 
-**\--bps**=\#
+**\--bps**={8\|16\|24\|32}
 :	(Input only) specify bits per sample (per channel: 16 for CDDA.)
 
 **\--sample-rate**=\#
 :	(Input only) specify sample rate (in Hz. Only integers supported.)
 
 **\--input-size**=\#
-:	(Input only) specify the size of the raw input in bytes. This option
-	is only compulsory when encoding from stdin and using options that need
- 	to know the input size beforehand (like, \--skip, \--until, \--cuesheet )
-	The encoder will truncate at the specified size if the input stream is
- 	bigger. If the input stream is smaller, it will complain about an 
-	unexpected end-of-file. 
+:	(Input from stdin only) specify the size of the raw input in bytes. 
+	This option can only be used when encoding from stdin, and is only 
+	needed in conjunction with options that need to know the input size 
+	beforehand (like, \--skip, \--until, \--cuesheet ) 
+	If specified input size does not match actual size, the encoder 
+	will either truncate or give *warning* about unexpected end-of-file. 
+
 
 ## ANALYSIS OPTIONS
 
@@ -645,9 +687,10 @@ When encoding from or decoding to raw PCM, format must be specified.
 	the residual distribution of the subframe. This will create a lot of
 	files. gnuplot must be installed separately. 
 
+
 ## NEGATIVE OPTIONS
 
-The following will negate an option previously given:
+The following will negate an option (a default or one previously given):
 
 **\--no-adaptive-mid-side**  
 **\--no-cued-seekpoints**  
@@ -670,163 +713,189 @@ The following will negate an option previously given:
 **\--no-verify**  
 **\--no-warnings-as-errors**
 
-## ReplayGain application specification
-The option \--apply-replaygain-which-is-not-lossless\[=\<specification\>\]
-applies ReplayGain values while decoding. **WARNING: THIS IS NOT
-LOSSLESS. DECODED AUDIO WILL NOT BE IDENTICAL TO THE ORIGINAL WITH THIS
-OPTION.** This option is useful for example in transcoding media servers,
-where the client does not support ReplayGain.
-	
-The \<specification\> is a shorthand notation for describing how to	apply
-ReplayGain. All elements are optional - defaulting to 0aLn1 - but order 
-is important.  The format is: 
-	
-\[\<preamp\>\]\[a\|t\]\[l\|L\]\[n{0\|1\|2\|3}\]
 
-In which the following parameters are used:
+## ADVANCED OPTION SPECIFICATIONS
 
--	**preamp**: A floating point number in dB. This is added to the 
-	existing gain value.
+### Applying ReplayGain (non-losslessly) to decoding: specfication
+**CAUTION: NOT LOSSLESS. DECODED AUDIO WILL BE IRREVERSIBLY ALTERED.**  
+The option \--apply-replaygain-which-is-not-lossless\[=*SPECIFICATION*\]
+changes the output audio's volume according to the input's ReplayGain 
+tags. The decoder will print info on what is applied. If a required tag 
+is missing, a *warning* will be printed and no alterations will apply.
 
--	**a\|t**: Specify 'a' to use the album gain, or 't' to use the track
-	gain. If tags for the preferred kind (album/track) do not exist but
-	tags for the other (track/album) do, those will be used instead.  
+*SPECIFICATION* is optional; if omitted, the decoder will apply the 
+*album gain* tag value (if missing: falling back to *track gain*), a 
+hard limit at 6 dB below digital full scale, and 'low' noise shaping.  
+However, if a *SPECIFICATION* is given at all, only the gain tag value 
+serves as default. See the examples below.
 
--	**l\|L**: Specify 'l' to peak-limit the output, so that the 
-	ReplayGain peak value is full-scale. Specify 'L' to use a 6dB hard
-	limiter that kicks in when the signal approaches full-scale.
+*SPECIFICATION* takes the form \[*PREAMP*]\[a\|t\]\[l\|L\]\[n{0\|1\|2\|3}\] 
+(each optional, but order matters), defaulting to 0aLn1, where:  
+- *PREAMP*: Number of dB to add to the existing gain value (default: 0). 
+	Decimal point is locale-specific (comma or dot).  
+- **a\|t**: Use 'a' (default) to prefer the album gain tag, or 't' 
+	to prefer the track gain tag; "prefer" meaning: Will fallback to the 
+	other if preferred is missing.  
+- **l\|L**: Use 'l' to peak-limit the output, so that the ReplayGain 
+	peak value is full-scale. USe 'L' to apply a hard limit kicking 
+	in at 6 dB below digital full scale. If a *SPECIFICATION* is 
+	given but without any 'l'/'L', no limiting will be applied.  
+- **n{0\|1\|2\|3}**: The amount of noise shaping. ReplayGain is 
+	processed in floating-point; quantization (with dithering) back 
+	to integer adds noise, and noise shaping tries to move it where 
+	you won't hear it as much. Value 0 means no noise shaping, 1 means 
+	'low', 2 means 'medium', 3 means 'high'. If a *SPECIFICATION* 
+	is given but without any 'n', it will default to 0.
 
--	**n{0\|1\|2\|3}**: Specify the amount of noise shaping. ReplayGain
-	synthesis happens in floating point; the result is dithered before
-	converting back to integer. This quantization adds noise. Noise
-	shaping tries to move the noise where you won't hear it as much.
-	0 means no noise shaping, 1 means 'low', 2 means 'medium', 3 means
-	'high'.
+#### examples: 
+\--apply-replaygain-which-is-not-lossless : default is 0aLn1.   
+\--apply-replaygain-which-is-not-lossless=3 means 3 dB preamp, prefer 
+album gain, and - because a *SPECIFICATION* is given at all - no 
+limiting and no noise shaping (rather than "Ln1").  
+\--apply-replaygain-which-is-not-lossless=tn3 means: prefer track gain, 
+do 'high' noise shaping. No limiting (cf. previous example), no preamp.
 
-For example, the default of 0aLn1 means 0dB preamp, use album gain, 6dB
-hard limit, low noise shaping. \--apply-replaygain-which-is-not-lossless=3
-means 3dB preamp, use album gain, no limiting, no noise shaping.
+### Picture specification
+The *SPECIFICATION* for **\--picture** takes the following form:  
+\[*TYPE*\]\|\[*MIME-TYPE*\]\|\[*DESCRIPTION*\]\|\[*WIDTH*x*HEIGHT*x*DEPTH*\[/*COLORS*\]\]\|*FILE*  
+All arguments but *FILE* can be left empty. The fields are: 
 
-flac uses the ReplayGain tags for the calculation. If a stream does
-not have the required tags or they can't be parsed, decoding will
-continue with a warning, and no ReplayGain is applied to that stream.
+- *TYPE* (defaults to 3, front cover) is a number from the following list 
+(and there may only be one picture each of type 1 and 2 in a file):
+ 0. Other
+ 1. PNG file icon of 32x32 pixels (see RFC 2083)
+ 2. General file icon
+ 3. Front cover
+ 4. Back cover
+ 5. Liner notes page
+ 6. Media label (e.g., CD, Vinyl or Cassette label)
+ 7. Lead artist, lead performer, or soloist
+ 8. Artist or performer
+ 9. Conductor
+ 10. Band or orchestra
+ 11. Composer
+ 12. Lyricist or text writer
+ 13. Recording location
+ 14. During recording
+ 15. During performance
+ 16. Movie or video screen capture
+ 17. A bright colored fish (from ID3v2, use discouraged)
+ 18. Illustration
+ 19. Band or artist logotype
+ 20. Publisher or studio logotype
 
-## Picture specification
-This described the specification used for the **\--picture** option.
-\[*TYPE*\]\|\[*MIME-TYPE*\]\|\[*DESCRIPTION*\]\|\[*WIDTHxHEIGHTxDEPTH*\[/*COLORS*\]\]\|*FILE*
+- *MIME-TYPE* (default: detect from file). Pictures with MIME-type 
+	image/jpeg or image/png are most compatible. *MIME-TYPE* \--\> means 
+	that *FILE* is actually URI to an image, though this use is discouraged.  
+- *DESCRIPTION* (defaults to empty string): free text.  
+- *WIDTH*x*HEIGHT*x*DEPTH*\[/*COLORS*\] (default: attempt to detect from 
+	image, as typically possible for jpeg/png/gif MIME-types): *WIDTH* 
+	and *HEIGHT* are given in pixels, and color *DEPTH* in bits-per-pixel. 
+	Also, optionally (for images with indexed colors) the number of 
+	colors used.  
+	CAUTION: **flac** will *not* try to verify that the information is correct.  
+- *FILE* is the only mandatory argument. It is either the path to the 
+	picture file to be imported, or the URI if MIME-type is "\--\>"
 
-*TYPE* is optional; it is a number from one of:
+#### examples: 
+\--picture="\|\|\|\|../cover.jpg". The same as \--picture="../cover.jpg" 
+(with *FILENAME* rather than as full specification). The file at 
+../cover.jpg wil be embedded, and by default: type 3 (front cover), empty
+description. The MIME-type (presumably image/jpeg), the resolution and 
+color info will be retrieved from the file itself.  
+\--picture="4\|\--\>\|CD\|320x300x24/173\|http://example.com/backcover.tiff" 
+will store the given URI literally (the referenced file will not be 
+retrieved), with type 4 (back cover), description "CD", and a manually 
+specified resolution of 320x300, 24 bits-per-pixel, and 173 colors.
 
-0. Other
-1. 32x32 pixels 'file icon' (PNG only)
-2. Other file icon
-3. Cover (front)
-4. Cover (back)
-5. Leaflet page
-6. Media (e.g. label side of CD)
-7. Lead artist/lead performer/soloist
-8. Artist/performer
-9. Conductor
-10. Band/Orchestra
-11. Composer
-12. Lyricist/text writer
-13. Recording Location
-14. During recording
-15. During performance
-16. Movie/video screen capture
-17. A bright coloured fish
-18. Illustration
-19. Band/artist logotype
-20. Publisher/Studio logotype
+### Apodization functions for encoding
+To improve LPC analysis, the encoder applies a standard technique of 
+*windowing* (/"apodizing"/"tapering") the audio data of each subframe.
+Windowing does not affect decoding - a decoder is ignorant to 
+goodness-of-fit nor how the coefficients were found - but facilitates 
+a fast algorithm to find "good" (better compressing) LPC coefficients.  
+Several windows can be tried, at diminishing returns to effort, as the 
+final encoding only uses the best per subframe. The encoder defaults 
+to the tukey(5e-1) window (described below); the subdivide_tukey(*N*) 
+of presets -6 to -8 implements a faster way at trying several windows, 
+by tukey-tapering successive subdivisions. Increasing *N* to 4 might 
+offer the cheapest (within *subset*) compression improvement over -8, 
+but higher *N* than 4 or 5 and/or more functions will soon turn less 
+efficient than other expensive options like (the much slower) -p. 
 
-The default is 3 (front cover). There may only be one picture each of
-type 1 and 2 in a file.
+The syntax -A *FUNCTION(S)* supports semicolon-delimited lists, e.g.
+`-7A"subdivide_tukey(2);hann"` for `-7A "subdivide_tukey(2)" -A hann`
+The presence of any (valid) -A will disable the default, so that a mere
+`-7Ahann` will apply the hann function *instead* of preset -7's usual 
+subdivide_tukey(2). Any misspecified function is silently ignored: 
+e.g. -7A "xyz;hann" becomes -7A hann, while -7A "subdivide_tukey(0)" 
+will fallback to -7 with its default "subdivide_tukey(2)". The current 
+max of 32 functions (subdivide_tukey counting as one, no matter *N*) is
+set for testing purposes, and unlikely to be a practical constraint. 
 
-*MIME-TYPE* is optional; if left blank, it will be detected from the file.
-For best compatibility with players, use pictures with MIME type
-image/jpeg or image/png. The MIME type can also be \--\> to mean that
-FILE is actually a URL to an image, though this use is discouraged.
+#### available functions 
 
-*DESCRIPTION* is optional; the default is an empty string.
+Currently implemented functions include some that arguably only serve 
+testing purposes (some historical - none have been removed), as well 
+as later additions that were found to improve. 
 
-The next part specifies the resolution and color information. If the
-*MIME-TYPE* is image/jpeg, image/png, or image/gif, you can usually leave
-this empty and they can be detected from the file. Otherwise, you must
-specify the width in pixels, height in pixels, and color depth in
-bits-per-pixel. If the image has indexed colors you should also specify
-the number of colors used. When manually specified, it is not checked
-against the file for accuracy.
+The following functions take no numerical parameters: bartlett, 
+bartlett_hann, blackman, blackman_harris_4term_92db, connes, flattop, 
+hamming, hann, kaiser_bessel, nuttall, rectangle, triangle, welch
 
-*FILE* is the path to the picture file to be imported, or the URL if MIME
-type is \--\>
+The following require a parameter. Scientific notation avoids the need 
+to consider locale-dependent decimal point: e.g. "tukey(5e-1)".  
+- gauss(*STDDEV*), where *STDDEV* (\>0, \<=5e-1) is the standard deviation. 
+- tukey(*P*). *P* (between 0 and 1) is the cosine-tapered fraction of 
+	the subframe; *P*=0 corresponds to "rectangle" and *P*=1 to "hann".  
+- partial_tukey(*N*\[/*OV*\[/*P*\]\]) and punchout_tukey(ditto parameters). 
+	Generate *N* functions, each covering a part of the subframe, 
+	zero-weighting the rest. Optional arguments: overlap *OV* (\<1, may 
+	be negative) and taper *P* like tukey.  
+- subdivide_tukey(*N*\[/*P*\]), where *N*\>1: Combining partial_tukey 
+	and punchout_tukey of orders 1 to *N*. Optional (*second* argument 
+	as there is no overlap): Taper *P*.
 
-**Specification examples:** 
-"\|image/jpeg\|\|\|../cover.jpg" will embed the 
-JPEG file at ../cover.jpg, defaulting to type 3 (front cover) and an 
-empty description. The resolution and color info will be retrieved 
-from the file itself. 
-"4\|\--\>\|CD\|320x300x24/173\|http://blah.blah/backcover.tiff" will
-embed the given URL, with type 4 (back cover), description "CD", and a
-manually specified resolution of 320x300, 24 bits-per-pixel, and 173
-colors. The file at the URL will not be fetched; the URL itself is
-stored in the PICTURE metadata block.
+subdivide_tukey(*N*) is currently used in presets -6 to -8; it was 
+designed for a more time-efficient re-implementation of partial_tukey 
+and punchout_tukey, both running from 1 to *N*: *N*=3 as used in -8
+will try to tukey-window first the full subframe, then each half, then 
+the thirds and the two-thirds subdivisions. Increasing to *N*=5 will on 
+top of that subdivide in quarters and in fifths. (Technical detail: the 
+tapering parameter - nominally still defaulting to 5e-1 - is now 
+applied at the level of the smallest subdivision. In order to facilitate 
+recycling of computational effort, the output is not precisely the same
+as the corresponding -A \<list partial_tukey-and-punchout_tukey\>.)
 
-## Apodization functions
-To improve LPC analysis, the audio data is windowed. An **-A** option 
-applies the specified apodization function(s) instead of the default 
-(which is "tukey(5e-1)", though different for presets -6 to -8.)
-Specifying one more function effectively means, for each subframe, to 
-try another weighting of the data and see if it happens to result in a 
-smaller encoded subframe. Specifying several functions is time-expensive, 
-at typically diminishing compression gains. 
+#### example (impractically long and detailed!):
+`-A "flattop;gauss(1e-1);tukey(3e-2);punchout_tukey(3/-9e-4/54e-2);subdivide_tukey(5/7e-1);hannning`  
+The encoder will for each subframe try all the following in order, 
+estimate the size, and pick the best which is then used to encode:
+- First taper the subframe with the flattop function;  
+- Start anew at a gauss with stdev = ten percent of the subframe;  
+- Start anew at a tukey window that tapers 15% of each end (total 30%);  
+- Then each of 3 windows generated by punchout_tukey: each generated by 
+	deleting ("punching out") a third of the subframe, with a small 
+	negative overlap, tapering off 27% off each end (total 54e-2);  
+- Finally a sequence of windows produced by subdivide_tukey: like the 
+	two previous ones, it applies cosine-tapering, but steeper tapers 
+	at the ends (the base case tapers 7e-1 divided by 5 i.e. 14 percent 
+	of the subframe), and successively trying subdivisions: the first 
+	and last half of the subframe, then the first/middle/last third etc, 
+	up to generating five windows, one for each fifth of the subframe.  
+- Wrong and discarded: "hanning" (a not-uncommon mixup of "hamming" and "hann").
 
-The subdivide_tukey(*N*) functions (see below) used in presets -6 to -8 
-were developed to recycle calculations for speed, compared to using a 
-number of independent functions. Even then, a high number like *N*\>4 
-or 5, will often become less efficient than other options considered 
-expensive, like the slower -p, though results vary with signal.
-
-Up to 32 functions can be given as comma-separated list and/or individual 
-**-A** options. Any mis-specified function is silently ignored. Quoting 
-a function which takes options (and has parentheses) may be necessary, 
-depending on shell. Currently the following functions are implemented: 
-bartlett, bartlett_hann, blackman, blackman_harris_4term_92db, connes, 
-flattop, gauss(*STDDEV*), hamming, hann, kaiser_bessel, nuttall, 
-rectangle, triangle, tukey(*P*), partial_tukey(*N*\[/*OV*\[/*P*\]\]), 
-punchout_tukey(*N*\[/*OV*\[/*P*\]\]), subdivide_tukey(*N*\[/*P*\]), welch.
-
-For parameters *P*, *STDDEV* and *OV*, scientific notation is supported, e.g. 
-tukey(5e-1). Otherwise, the decimal point must agree with the locale, 
-e.g. tukey(0.5) or tukey(0,5) depending on your system.
-
-- For gauss(*STDDEV*), *STDDEV* is the standard deviation (0\<*STDDEV*\<=5e-1).
-
-- For tukey(*P*), *P* (between 0 and 1) specifies the fraction of the window 
-that is cosine-tapered; *P*=0 corresponds to "rectangle" and *P*=1 to "hann". 
-
-- partial_tukey(*N*) and punchout_tukey(*N*) are largely obsoleted by the 
-more time-effective subdivide_tukey(*N*), see next item. They generate *N* 
-functions each spanning a part of each block. Optional arguments are an 
-overlap *OV* (\<1, may be negative), for example partial_tukey(2/2e-1); 
-and then a taper parameter *P*, for example partial_tukey(2/2e-1/5e-1).
-
-- subdivide_tukey(*N*) is a more efficient reimplementation of partial_tukey 
-and punchout_tukey taken together, combining the windows they would 
-generate up to the specified *N*. Specifying subdivide_tukey(3) entails a 
-tukey, a partial_tukey(2), a partial_tukey(3) and a punchout_tukey(3); 
-specifying subdivide_tukey(5) will on top of that add a partial_tukey(4), 
-a punchout_tukey(4), a partial_tukey(5) and a punchout_tukey(5) - but all 
-with tapering chosen to facilitate the re-use of computation. Thus the *P* 
-parameter (defaulting to 5e-1) is applied for the smallest used window:
-For example, subdivide_tukey(2/5e-1) results in the same taper as that of
-tukey(25e-2) and subdivide_tukey(5) in the same taper as of tukey(1e-1). 
 
 # SEE ALSO
 
 **metaflac(1)**
 
+**flac** and **metaflac** are maintained at https://github.com/xiph/flac  
+Format specification: RFC 9639, https://datatracker.ietf.org/doc/rfc9639  
+
+
 # AUTHOR
 
 This manual page was initially written by Matt Zimmerman
-\<mdz@debian.org\> for the Debian GNU/Linux system (but may be used by
-others). It has been kept up-to-date by the Xiph.org Foundation.
+\<mdz@debian.org\> for the Debian GNU/Linux system. It has been 
+maintained by the Xiph.org Foundation.
