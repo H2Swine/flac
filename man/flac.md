@@ -1,8 +1,10 @@
 % flac(1) Version 1.5.0 | Free Lossless Audio Codec conversion tool
 
+
 # NAME
 
-flac - Free Lossless Audio Codec
+flac - Encode, decode, test or analyze FLAC (Free Lossless Audio Codec) files
+
 
 # SYNOPSIS
 
@@ -10,114 +12,117 @@ flac - Free Lossless Audio Codec
 *infile.aiff* \| *infile.raw* \| *infile.flac* \| *infile.oga* \|
 *infile.ogg* \| **-** *...* \]
 
-**flac** \[ **-d** \| **\--decode** \| **-t** \| **\--test** \| **-a** \|
-**\--analyze** \] \[ *OPTIONS* \] \[ *infile.flac* \| *infile.oga* \|
-*infile.ogg* \| **-** *...* \]
+**flac** \[ **-d** \| **\--decode** \| **-t** \| **\--test** \| **-a** \| **\--analyze** \] 
+\[ *OPTIONS* \] \[ *infile.flac* \| \--ogg *infile.oga* \| \--ogg *infile.ogg* \| **-** *...* \]
+
 
 # DESCRIPTION
 
-**flac** is a command-line tool for encoding, decoding, testing and
-analyzing FLAC streams.
+**flac** is the command-line reference tool for the Free Lossless Audio
+Codec (FLAC). **flac** encodes (compresses) from, and decodes 
+(decompresses) to, linear PCM audio in most common uncompressed formats.
+Its native file format is the FLAC format as specified in RFC 9639, but 
+Ogg FLAC (i.e. FLAC stream in Ogg container) is also supported. **flac** 
+also provides operation modes for integrity testing and for analysis. 
+**flac** supports standard streams stdin/stdout/stderr, and exit codes.
 
-# GENERAL USAGE
 
-**flac** supports as input RIFF WAVE, Wave64, RF64, AIFF, FLAC or Ogg
-FLAC format, or raw interleaved samples. The decoder currently can output
-to RIFF WAVE, Wave64, RF64, or AIFF format, or raw interleaved samples.
-flac only supports linear PCM samples (in other words, no A-LAW, uLAW,
-etc.), and the input must be between 4 and 32 bits per sample.
+## GENERAL USAGE
 
-flac assumes that files ending in ".wav" or that have the RIFF WAVE
-header present are WAVE files, files ending in ".w64" or have the Wave64
-header present are Wave64 files, files ending in ".rf64" or have the
-RF64 header present are RF64 files, files ending in ".aif" or ".aiff" or
-have the AIFF header present are AIFF files, files ending in ".flac"
-or have the FLAC header present are FLAC files and files ending in ".oga"
-or ".ogg" or have the Ogg FLAC header present are Ogg FLAC files.
+**flac** and the FLAC file format support linear PCM audio, integer only 
+(in other words, excluding PDM/PWM, floating-point PCM, A-LAW, uLAW etc.) 
+from 4 to 32 bits per sample, in 1 to 8 channels, of sample rate up to a
+megahertz (in integers). **flac** can encode from / decode to all common
+versions of the WAVE, RF64, Wave64 and AIFF/AIFC formats, as well as raw
+samples (channels interleaved, audio format must be specified).  
+**flac** can encode to / decode from FLAC and Ogg FLAC files, and can 
+recompress with metadata (such as tags) transferred. 
 
-Other than this, flac makes no assumptions about file extensions, though
-the convention is that FLAC files have the extension ".flac"
-(or ".fla" on ancient "8.3" file systems like FAT-16).
+**flac** works in one of four operation modes:   
+- encoding (the default mode; includes re-encoding a FLAC / Ogg FLAC file
+to (Ogg) FLAC);  
+- decoding (invoked with `--decode` of its shortform `-d`);  
+- testing (`--test` or `-t`), will perform the decoding and also 
+metadata integrity checks, but will not produce any output file;  
+- analysis (`--analyze` or `-a`), works like the decoding mode, except
+writes instead an analysis file.  
+- In addition, `--help` / `-h` to show help and quit, and `--version` / 
+`-v` to show version and quit, both exclude any operations modes.  
 
-Before going into the full command-line description, a few other things
-help to sort it out:
+Encoding/decoding/analysis modes have their own options, see the  
+**OPTIONS** part for details; the **General options** section applies to 
+more than one mode. The **Format options** section may apply both to 
+some encoding and some decoding scenarios.  
 
-1.	flac encodes by default, so you must use -d to decode
-2.	Encoding options -0 .. -8 (or \--fast and \--best) that control the
-	compression level actually are just synonyms for different groups of
-	specific encoding options (described later).  
-3.	The order in which options are specified is generally not important 
-	except when they contradict each other, then the latter takes 
-	precedence except that compression presets are overridden by any
-	option given before or after. For example, -0M, -M0, -M2 and -2M are 
-	all the same as -1, and -l 12 -6 the same as -7.
-4.	flac behaves similarly to gzip in the way it handles input and output 
-	files
+### File handling and more 
 
-Skip to the EXAMPLES section below for examples of some typical tasks.
+By default, **flac** writes an output file with same name as the input, 
+except changing filename extension. **flac** can handle several input 
+files on one command, separated by whitespace and/or with wildcards (* 
+or ?); though, some options are only available when working on a single
+file, like assigning output filename or (using "-") stdin/stdout. 
+**flac** does not recognize symbolic links. 
 
-flac will be invoked one of four ways, depending on whether you are
-encoding, decoding, testing, or analyzing. Encoding is the default
-invocation, but can be switch to decoding with **-d**, analysis with
-**-a** or testing with **-t**. Depending on which way is chosen,
-encoding, decoding, analysis or testing options can be used, see section
-OPTIONS for details. General options can be used for all.
+Upon *encoding* (and re-encoding), **flac** will detect input file format 
+from file headers, outputting a FLAC file which defaults to ".flac"
+extension (except: `--ogg` outputs Ogg FLAC defaulting to ".oga".)  
+NOTE: Setting outfile extension has no effect upon (re-)encoding; e.g. 
+if user forgot the `-d` decoding switch in an attempt to decode to 
+`-o out.wav`, **flac** will encode, and will *not* warn that the 
+resulting "out.wav" is indeed a FLAC file. 
 
-If only one inputfile is specified, it may be "-" for stdin. When stdin
-is used as input, flac will write to stdout. Otherwise flac will perform
-the desired operation on each input file to similarly named output files
-(meaning for encoding, the extension will be replaced with ".flac", or
-appended with ".flac" if the input file has no extension, and for
-decoding, the extension will be ".wav" for WAVE output and ".raw" for raw
-output). The original file is not deleted unless \--delete-input-file is
-specified.
+Upon *decoding*, **flac** requires the input to be FLAC/Ogg FLAC, and 
+will exit with an *error* otherwise. Decoded output defaults to RIFF 
+WAVE with ".wav" extension, but setting output filename ending in 
+".rf64", ".w64", ".aif" or ".aiff" (as well as ".wav") will force file 
+type to follow suit. File types (including particular versions of RIFF 
+WAVE or AIFF) can also be set by either a format option (see section 
+**Format options** below), or finally, but only through an option: 
+inferred from non-audio chunks the FLAC file might (optionally, the 
+default is to ignore) have stored from the original uncompressed file.  
+**flac** will exit with an *error* upon setting conflicting file types, 
+but only the above listed extensions are reserved this way. For 
+example, `-d -o out.flac` will (without warning) produce a WAVE file; 
+`--force-rf64-format -o out.raw` will produce an RF64 file with .raw 
+extension; but, `--force-rf64-format -o out.aif` will err out.  
+As of **flac** version 1.5.0, ".aifc" is not treated consistently. 
 
-If you are encoding/decoding from stdin to a file, you should use the -o
-option like so:
+**flac** does support redirects, but not all functionality is available 
+that way. E.g. selecting an output filename (with `-o`) allows **flac** to 
+write full file headers upon completion, whereas "\> file" does not. 
 
-    flac [options] -o outputfile
-    flac -d [options] -o outputfile
+**flac** delivers exit codes (0 for OK, >0 for *error*) upon completion. 
 
-which are better than:
 
-    flac [options] > outputfile
-    flac -d [options] > outputfile
+### Applying options 
 
-since the former allows flac to seek backwards to write the STREAMINFO or
-RIFF WAVE header contents when necessary.
+Before going into the full command-line description, a few pieces of 
+information might help to sort it out:  
+- The left-to-right order of options is generally insignificant, with 
+  some exceptions that will be stated (like \--no-utf-8 before tags). 
+  However, a latter on the command-line generally overrides a former, 
+  with the exception that the *compression presets* -0 to -8 are 
+  overridden by any option given before or after; for example, -0M, 
+  -M0, -M2 and -2M are all the same as -1, and -l 12 -6 the same as -7.   
+- These compression presets, the encoding options -0 .. -8 (or \--fast 
+  and \--best) are just synonyms for different encoding option sets 
+  (described later). The default -5 has been tuned for reasonable 
+  trade-off between compression and encoding speed. FLAC files decode 
+  very fast regardless of encoding preset used - even on legacy hardware.  
+- Several of the options exist in both a long form, invoked with double
+  dash `--` and a short form invoked with a single dash. **flac** employs 
+  the commonplace convention that single-dash short form options can be
+  shortened together until one that takes an argument, for example 
+  -do outfile.wav to decode (the "-d") and output to outfile.wav. The 
+  above given example -l 12 -6 can be shortened to -6l12, as "-6" is no 
+  argument (but an option in its own right) - but any option after the 
+  "12" argument will require a space and its own dash.  
+- Generally, options can be given before or after input filename. But
+  **flac** does employ the convention that `-- ` (with whitespace!) 
+  signifies end of options, treating everything to follow as filename.  
 
-Also, you can force output data to go to stdout using -c.
 
-To encode or decode files that start with a dash, use \-- to signal the
-end of options, to keep the filenames themselves from being treated as
-options:
-
-    flac -V -- -01-filename.wav
-
-The encoding options affect the compression ratio and encoding speed. The
-format options are used to tell flac the arrangement of samples if the
-input file (or output file when decoding) is a raw file. If it is a RIFF
-WAVE, Wave64, RF64, or AIFF file the format options are not needed since
-they are read from the file's header.
-
-In test mode, flac acts just like in decode mode, except no output file
-is written. Both decode and test modes detect errors in the stream, but
-they also detect when the MD5 signature of the decoded audio does not
-match the stored MD5 signature, even when the bitstream is valid.
-
-flac can also re-encode FLAC files. In other words, you can specify a
-FLAC or Ogg FLAC file as an input to the encoder and it will decoder it
-and re-encode it according to the options you specify. It will also
-preserve all the metadata unless you override it with other options (e.g.
-specifying new tags, seekpoints, cuesheet, padding, etc.).
-
-flac has been tuned so that the default settings yield a good speed vs.
-compression tradeoff for many kinds of input. However, if you are looking
-to maximize the compression rate or speed, or want to use the full power
-of FLAC's metadata system, see the page titled 'About the FLAC Format' on
-the FLAC website.
-
-# EXAMPLES
+# USAGE EXAMPLES
 
 Some typical encoding and decoding tasks using **flac**:
 
@@ -147,11 +152,11 @@ Some typical encoding and decoding tasks using **flac**:
 `flac *.wav *.aif?`
 :	Wildcards are supported. This command will encode all .wav files and 
 	all .aif/.aiff/.aifc files (as well as other supported files ending 
-	in .aif+one character) in the current directory, outputting files 
-	with .flac extension. It will not overwrite, so if there are abc.wav 
-	and abc.aiff, the first result in abc.flac - and then next time 
-	**flac** wants to output to abc.flac, it will throw an *error* instead 
-	(and go on to encoding the next file).
+	in .aif+one character, encoder will detect type) in the current 
+	directory, outputting files with .flac extension. It will not 
+	overwrite: if abc.wav and abc.aiff already exist, the first results
+	in abc.flac - and then next time **flac** wants to output to abc.flac, 
+	it will throw an *error* instead (and go on to encoding the next file).
 
 `flac abc.flac --force` or `flac abc.flac -f`
 :	Recompresses, keeping metadata (tags and other). Mind the syntax: 
@@ -163,9 +168,11 @@ Some typical encoding and decoding tasks using **flac**:
 	old abc.flac (provided flac has write access to that file). 
 	The above example applies default settings. Often, recompression 
 	is done for higher compression, like e.g. flac -8f abc.flac  
-	NOTE: If the input FLAC file does not end with .flac, the output 
-	still will default to .flac extension `flac abc.fla` will create 
-	abc.flac and keep abc.fla, just like for uncompressed input file.
+	NOTE: If the file to be re-encoded does not end with .flac, the 
+	output still defaults to .flac extension; `flac abc.fla xyz.oga` 
+	will create abc.flac and and xyz.flac, keeping abc.fla and xyz.oga, 
+	just like for uncompressed input file. Analogously for Ogg FLAC: 
+	`flac --ogg abc.flac` will create abc.oga and keep abc.flac. 
 
 `flac --tag-from-file="DESCRIPTION=notes.txt" -T "ARTIST=Queen" *.wav`
 :	Encode every .wav file in the directory and add some tags. Every 
@@ -177,26 +184,26 @@ Some typical encoding and decoding tasks using **flac**:
 
 `flac --keep-foreign-metadata-if-present abc.wav`
 :	FLAC files can store non-audio chunks of input WAVE/AIFF/RF64/W64
-	files. The related option \--keep-foreign-metadata works the same
-	way, but will instead exit with an *error* no such chunks are found.
-	**flac** cannot import the content to FLAC tags (Vorbis comments); 
-	use instead dedicated tagging software. 
+	files, and restore the source file by using this option also upon 
+	decoding. The related \--keep-foreign-metadata works the same way, 
+	but will exit with an *error* if no such chunks are found.
+	**flac** cannot convert the chunks' content to FLAC tags (Vorbis 
+	comments); use instead dedicated tagging software. 
 
 `flac -Vj2 -m3fo Track07.flac  -- -7.wav`
-:	**flac** employs the commonplace convention that options in a short 
-	version - invoked with single dash - can be shortened together until 
-	one that takes an argument. Here -j and -o do, and after the "j2" a 
-	whitespace is needed to start new options with single/double dash. 
-	The -m option does not, and the following "3" is the -3 compression
-	setting. The options could equally well have been written out as 
+:	This example displays how shortform "single dash" options can be 
+	written concatenated until one that takes an argument. In this 
+	example, -j and -o do; thus, after the "j2" a whitespace is needed 
+	to start new options with single/double dash. The -m option takes 
+	no argument (the following "3" is the -3 compression preset). 
+	This set of options could equally well have been written out as 
 	-V -j 2 -m -3 -f -o Track07.flac , or as -foTrack07.flac -3mVj2. 
-	**flac** also employs the convention that `-- ` (with whitespace!) 
-	signifies end of options, treating everything to follow as filename.
-	That is needed when an input filename could otherwise be read as an
-	option, and "-7" is one such.
+	The `-- ` (with whitespace!) signifies end of options, treating 
+	everything to follow as filename; that is needed when an input 
+	filename could otherwise be read as an option, like this "-7".  
 	In total, this line takes the input file -7.wav as input; -o will 
 	give output filename as Track07.flac, and the -f will overwrite if 
-	the file Track07.flac is already present. The encoder will select 
+	the file Track07.flac already exists. The encoder will select 
 	encoding preset -3 modified with the -m switch, and use two CPU 
 	threads. Afterwards, the -V will make it decode the FLAC file and 
 	compare the audio to the input, to ensure they are indeed equal. 
@@ -204,8 +211,8 @@ Some typical encoding and decoding tasks using **flac**:
 ## Decoding examples
 
 `flac --decode abc.flac` or `flac -d abc.flac`
-:	Decode abc.flac to abc.wav. abc.flac is not deleted. If abc.wav is
-	already present, the process will exit with an *error* instead of 
+:	Decode abc.flac to abc.wav. abc.flac is not deleted. If abc.wav 
+	already exists, the process will print an *error* instead of 
 	overwriting; use --force / -f to force overwrite.
 	NOTE: A mere flac abc.flac *without --decode or its shortform -d*, 
 	would mean to re-encode abc.flac to abc.flac (see above), and that
@@ -243,8 +250,8 @@ Some typical encoding and decoding tasks using **flac**:
 
 # OPTIONS
 
-A summary of options follows; see also subsection **Negative options** for 
-negating options. The **Format options** subsection describes ways to 
+A summary of options follows; see also section **Negative options** for 
+negating options. The **Format options** section describes ways to 
 select format upon decoding, and upon encoding from raw or to Ogg FLAC.
 
 ## GENERAL OPTIONS
@@ -351,7 +358,7 @@ select format upon decoding, and upon encoding from raw or to Ogg FLAC.
 
 ## DECODING OPTIONS
 
-For output format selection, see the **Format options** subsection. 
+For output format selection, see the **Format options** section. 
 
 **-F**, **\--decode-through-errors**
 :	Bitstream errors will by default make the decoder exit with an
@@ -394,7 +401,7 @@ For output format selection, see the **Format options** subsection.
 
 The encoder will auto-detect input format except headerless raw PCM, and 
 by default output *.flac* file extension - though *.oga* if \--ogg sets 
-Ogg FLAC output. See subsection **Format options** for raw / Ogg FLAC.
+Ogg FLAC output. See section **Format options** for raw / Ogg FLAC.
 
 ### Options for compression and audio processing
 
@@ -513,7 +520,7 @@ require the \--lax option (or the encoder will exit with an *error*).
 
 ### Options for metadata
 
-Options can be repeated, e.g. -T "COMPOSER=Mann" -T "COMPOSER=Weil".
+Some options can repeat, e.g. -T "COMPOSER=Mann" -T "COMPOSER=Weil".
 
 **\--picture**={*FILENAME\|SPECIFICATION*}
 :	Import a picture and store it in a PICTURE metadata block, one per 
@@ -528,8 +535,15 @@ Options can be repeated, e.g. -T "COMPOSER=Mann" -T "COMPOSER=Weil".
 	picture count (like a thousand) even when the 16 MiB bound is met. 
 
 **\--cuesheet**=*FILENAME*
-:	Import the given cuesheet file and store it in a CUESHEET metadata
-	block. This option may only be used when encoding a single file. 
+:	Import file *FILENAME* and store its content in a CUESHEET metadata 
+	block. This option may only be used when encoding a single file, 
+	and only one CUESHEET block can exist; giving more \--cuesheet 
+	options will discard all but the last. A *warning* will be printed 
+	when \--cuesheet overwrites an existing CUESHEET upon re-encoding. 
+	The content of the cuesheet file will be converted to the CUESHEET 
+	block's format, silently discarding other information (like most 
+	"CD-TEXT" content, including PERFORMER or COMPOSER data; ISRC is 
+	stored. For details, see the format specification section 8.7).
 	Each index point will get a seekpoint added to the SEEKTABLE, 
 	unless overridden by \--no-cued-seekpoints.
 
@@ -566,7 +580,7 @@ Options can be repeated, e.g. -T "COMPOSER=Mann" -T "COMPOSER=Weil".
 
 **-S** {\#\|\#x\|\#s\|X}, **\--seekpoint**={\#\|\#x\|\#s\|X}
 :	Sets seekpoint(s), overriding the default choice of one per ten seconds
-	('-s 10s'). Several -S options may be given; the resulting SEEKTABLE 
+	('-s 10s'). When several -S options are given, the resulting SEEKTABLE 
 	will contain all the seekpoints (duplicates removed), max 32768.  
 	Seekpoints will be added as follows: \# for one at that sample number, 
 	ignored if exceeding the total sample count; \#x for \# evenly spaced 
@@ -578,17 +592,17 @@ Options can be repeated, e.g. -T "COMPOSER=Mann" -T "COMPOSER=Weil".
 	Use \--no-seektable for no SEEKTABLE. 
 
 **-P** \#, **\--padding**=\#
-:	(Default: 8192, although 65536 for input above 20 minutes. A 4-byte
-	block header will come on top.) Writes a PADDING block of the given 
-	length (in bytes) in the metadata section, before the audio. Useful 
-	for later tagging, whereupon the PADDING block can be overwritten 
-	instead of having to rewrite the entire file.
-
+:	Writes a PADDING block of \# bytes (plus 4 for block header) in the 
+	metadata section before the audio, overriding the encoder's default 
+	(of 8192, although 65536 for input \> 20 min.); if more -P options 
+	are given, all but the last are silently ignored. PADDING blocks 
+	are useful for later tagging, leaving room to overwrite only the 
+	metadata section instead of having to rewrite the entire file. 
 
 ## FORMAT OPTIONS
 
 **flac** usually auto-detects input file type no matter file extension. 
-For Ogg FLAC and raw PCM options, see after the next subsection.
+For Ogg FLAC and raw PCM options, see the headlines after the next:
 
 ### Decoding output options
 
@@ -596,8 +610,8 @@ Decoding defaults to WAVE (selecting WAVE\_FORMAT\_PCM for mono/stereo
 with 8/16 bits, and WAVE\_FORMAT\_EXTENSIBLE otherwise), except: will be 
 overridden by chunks found by \--keep-foreign-metadata-if-present or 
 \--keep-foreign-metadata or output filename extension selected by -o. 
-If conflicting formats are specified - including through keeping 
-incompatible foreign metadata - the decoder will exit with an *error*.
+The decoder will exit with an *error* upon conflicting output formats 
+set - including, by way of keeping incompatible foreign metadata. 
 
 **\--force-aiff-format**  
 **\--force-rf64-format**  
@@ -651,30 +665,29 @@ The first of these is mainly for decoding:
 	will otherwise exit with an *error* (again, to guard against mistakes).
 
 **\--sign**={signed\|unsigned}
-:	(Input from raw or output to raw) Specify the sign of samples.
+:	(Input from raw or output to raw) Signedness of each sample.
 
 **\--endian**={big\|little}
-:	(Input from raw or output to raw) Specify the byte order of samples.
+:	(Input from raw or output to raw) Byte order of each sample.
 
 **\--channels**=\#
-:	(Input only) specify number of channels. The channels must be 
-	interleaved, and in the order of the FLAC format, see the format
-	specification; the encoder (/decoder) cannot re-order channels.
+:	(Input only) Number of channels. The channels must be interleaved,
+	and in the order of the FLAC format, see the format specification; 
+	the encoder (/decoder) cannot re-order channels.
 
 **\--bps**={8\|16\|24\|32}
-:	(Input only) specify bits per sample (per channel: 16 for CDDA.)
+:	(Input only) Bits per sample (per channel: 16 for CDDA.)
 
 **\--sample-rate**=\#
-:	(Input only) specify sample rate (in Hz. Only integers supported.)
+:	(Input only) Sample rate (in Hz. Only integers supported.)
 
 **\--input-size**=\#
-:	(Input from stdin only) specify the size of the raw input in bytes. 
+:	(Input from stdin only) Size of the raw input in bytes. 
 	This option can only be used when encoding from stdin, and is only 
 	needed in conjunction with options that need to know the input size 
 	beforehand (like, \--skip, \--until, \--cuesheet ) 
-	If specified input size does not match actual size, the encoder 
-	will either truncate or give *warning* about unexpected end-of-file. 
-
+	Upon a mismatch to actual size, the encoder will either truncate or 
+	print a *warning* about unexpected end-of-file. 
 
 ## ANALYSIS OPTIONS
 
@@ -726,13 +739,13 @@ is missing, a *warning* will be printed and no alterations will apply.
 *SPECIFICATION* is optional; if omitted, the decoder will apply the 
 *album gain* tag value (if missing: falling back to *track gain*), a 
 hard limit at 6 dB below digital full scale, and 'low' noise shaping.  
-However, if a *SPECIFICATION* is given at all, only the gain tag value 
-serves as default. See the examples below.
+However, if any *SPECIFICATION* is given - including an empty one - 
+only the gain tag preference serves as default. See the examples below.
 
 *SPECIFICATION* takes the form \[*PREAMP*]\[a\|t\]\[l\|L\]\[n{0\|1\|2\|3}\] 
-(each optional, but order matters), defaulting to 0aLn1, where:  
+(each optional, but order matters) where:  
 - *PREAMP*: Number of dB to add to the existing gain value (default: 0). 
-	Decimal point is locale-specific (comma or dot).  
+	Decimal point is locale-dependent (comma or dot).  
 - **a\|t**: Use 'a' (default) to prefer the album gain tag, or 't' 
 	to prefer the track gain tag; "prefer" meaning: Will fallback to the 
 	other if preferred is missing.  
@@ -748,12 +761,13 @@ serves as default. See the examples below.
 	is given but without any 'n', it will default to 0.
 
 #### examples: 
-\--apply-replaygain-which-is-not-lossless : default is 0aLn1.   
-\--apply-replaygain-which-is-not-lossless=3 means 3 dB preamp, prefer 
-album gain, and - because a *SPECIFICATION* is given at all - no 
-limiting and no noise shaping (rather than "Ln1").  
-\--apply-replaygain-which-is-not-lossless=tn3 means: prefer track gain, 
-do 'high' noise shaping. No limiting (cf. previous example), no preamp.
+\--apply-replaygain-which-is-not-lossless : as explained above, results 
+in the same as \--apply-replaygain-which-is-not-lossless=0aLn1  
+\--apply-replaygain-which-is-not-lossless= : in an empty *SPECIFICATION* 
+only the "a" of the previous example prevails. Will apply album gain 
+(if mising: apply track gain), but no preamp/limiting/noise shaping. 
+\--apply-replaygain-which-is-not-lossless=2n3 : 2 dB preamp, prefer 
+album gain, 'high' noise shaping. No limiting, cf. previous example.
 
 ### Picture specification
 The *SPECIFICATION* for **\--picture** takes the following form:  
@@ -804,9 +818,9 @@ All arguments but *FILE* can be left empty. The fields are:
 description. The MIME-type (presumably image/jpeg), the resolution and 
 color info will be retrieved from the file itself.  
 \--picture="4\|\--\>\|CD\|320x300x24/173\|http://example.com/backcover.tiff" 
-will store the given URI literally (the referenced file will not be 
-retrieved), with type 4 (back cover), description "CD", and a manually 
-specified resolution of 320x300, 24 bits-per-pixel, and 173 colors.
+will store the given URI literally (not retrieving the referenced 
+file!), as type 4 (back cover), description "CD", and the following 
+information: 320x300 resolution, 24 bits-per-pixel and 173 colors.
 
 ### Apodization functions for encoding
 To improve LPC analysis, the encoder applies a standard technique of 
