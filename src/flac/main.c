@@ -1322,7 +1322,7 @@ void show_help(void)
 	usage_header();
 	usage_summary();
 	printf("\n");
-	printf("This help text summarizes all available options, for more explanation and\n");
+	printf("This help text summarizes the available options, for more explanation and\n");  
 	printf("examples please consult the manual. This manual is often distributed\n");
 	printf("alongside the program as a man page or an HTML file. It can also be found\n");
 	printf("online at https://xiph.org/flac/documentation_tools_flac.html\n");
@@ -1345,7 +1345,6 @@ void show_help(void)
 	printf("                           but not return an error when no such chunks are found\n");
 	printf("      --skip={#|mm:ss.ss}      Skip the given initial samples for each input\n");
 	printf("      --until={#|[+|-]mm:ss.ss}     Stop at the given sample for each input file\n");
-	printf("      --no-utf8-convert        Do not convert tags from local charset to UTF-8\n");
 	printf("  -s, --silent                 Do not write runtime encode/decode statistics\n");
 	printf("      --totally-silent         Do not print anything, including errors\n");
 	printf("  -w, --warnings-as-errors     Treat all warnings as errors\n");
@@ -1358,8 +1357,11 @@ void show_help(void)
 	printf("                               just the first one\n");
 
 #endif
+	printf("      --apply-replaygain-which-is-not-lossless\n");
+	printf("                           Change volume of output for players that do not know\n");
+	printf("                           ReplayGain. (Warning: irreversibly alters the signal!)\n");
 	printf("\n");
-	printf("Encoding options, defaulting to -5, -A \"tukey(5e-1)\" and one CPU thread:\n");
+	printf("Encoding options, defaulting to the -5 compression level and one CPU thread:\n");
 	printf("  -V, --verify                       Verify a correct encoding\n");
 	printf("  -0, --compression-level-0, --fast  Synonymous with -l 0 -b 1152 -r 3\n");
 	printf("  -1, --compression-level-1          Synonymous with -l 0 -b 1152 -M -r 3\n");
@@ -1374,34 +1376,33 @@ void show_help(void)
 	printf("  -8, --compression-level-8, --best  Synonymous with -l 12 -b 4096 -m -r 6\n");
 	printf("                                         -A \"subdivide_tukey(3)\"\n");
 	printf("  -l, --max-lpc-order=#              Max LPC order; 0 => only fixed predictors\n");
-	printf("  -b, --blocksize=#                  Specify blocksize in samples\n");
-	printf("  -m, --mid-side                     Try mid-side coding for each frame\n");
-	printf("  -M, --adaptive-mid-side            Adaptive choice of mid-side coding\n");
+	printf("  -b, --blocksize=#                  Set blocksize in samples (per channel)\n");
+	printf("  -m, --mid-side                     Try mid-side coding for each stereo frame\n");
+	printf("  -M, --adaptive-mid-side            Heuristic choice of mid-side coding\n");
 	printf("  -r, --rice-partition-order=[#,]#   Set [min,]max residual partition order\n");
 	printf("  -A, --apodization=\"function\"       Window audio data with given function(s)\n");
 	printf("  -e, --exhaustive-model-search      Do exhaustive model search (expensive!)\n");
-	printf("  -q, --qlp-coeff-precision=#        Specify quantization precision in bits\n");
-	printf("                                     (default: let encoder decide)\n");
+	printf("  -q, --qlp-coeff-precision=#        Set quantization precision in bits\n");
+	printf("                                     (-q0 (default) to let encoder decide)\n");
 	printf("  -p, --qlp-coeff-precision-search   Exhaustively search LP coeff quantization\n");
 	printf("      --lax                          Allow encoder to generate non-Subset files\n");
-	printf("      --limit-min-bitrate            Limit minimum bitrate (for streaming)\n");
-	printf("  -j, --threads=#                    Set number of encoding threads\n");
+	printf("      --limit-min-bitrate            Constrain to > 1 bit/sample (for streaming)\n");
 	printf("      --ignore-chunk-sizes           Ignore data chunk sizes in WAVE/AIFF files\n");
-	printf("      --replay-gain                  Calculate ReplayGain & store in FLAC tags\n");
-	printf("      --cuesheet=FILENAME            Import cuesheet & store in CUESHEET block\n");
+	printf("  -j, --threads=#                    Set number of encoding threads \n");
+	printf("                                     (-j0 (default) to let encoder decide)\n");
+	printf("  -V, --verify                       Verify a correct encoding\n");
+	printf("\n");	
 	printf("      --picture=SPECIFICATION        Import picture & store in PICTURE block\n");
+	printf("      --cuesheet=FILENAME            Import cuesheet & store in CUESHEET block\n");
+	printf("      --no-utf8-convert        Do not convert tags from local charset to UTF-8\n");
 	printf("  -T, --tag=FIELD=VALUE              Add a FLAC tag; may appear multiple times\n");
 	printf("      --tag-from-file=FIELD=FILENAME     Like --tag but gets value from file\n");
+	printf("      --replay-gain                  Calculate ReplayGain & store in FLAC tags\n");
 	printf("  -S, --seekpoint={#|X|#x|#s}        Add seek point(s)\n");
 	printf("  -P, --padding=#                    Write a PADDING block of length # bytes\n");
 	printf("\n");
 	printf("Format options (encoding defaults to FLAC not OGG; decoding defaults to WAVE, \n");
 	printf("             chunks found by --keep-foreign-metadata-if-present will override):\n");
-#if FLAC__HAS_OGG
-	printf("      --ogg                          Use Ogg transport layer, output .oga\n");
-	printf("      --serial-number                Ogg serial number to assign (encoding)\n");
-	printf("                                     or to select for decoding\n");
-#endif
 	printf("      --force-aiff-format            Decode to AIFF format\n");
 	printf("      --force-rf64-format            Decode to RF64 format\n");
 	printf("      --force-wave64-format          Decode to Wave64 format\n");
@@ -1409,12 +1410,17 @@ void show_help(void)
 	printf("      --force-extensible-wave-format Decode to extensible wave format\n");
 	printf("      --force-aiff-c-none-format     Decode to AIFF-C NONE format\n");
 	printf("      --force-aiff-c-sowt-format     Decode to AIFF-C sowt format\n");
+#if FLAC__HAS_OGG
+	printf("      --ogg                          Encode to Ogg container, output .oga\n");
+	printf("      --serial-number                Ogg serial number to assign (encoding)\n");
+	printf("                                     or to select for decoding\n");
+#endif
 	printf("      --force-raw-format             Treat input or output as raw samples\n");
 	printf("raw format options:\n");
-	printf("      --sign={signed|unsigned}       Sign of samples (input/output) \n");
-	printf("      --endian={big|little}          Byte order for samples (input/output)\n");
+	printf("      --sign={signed|unsigned}       Signedness of each sample. (input/output) \n");
+	printf("      --endian={big|little}          Byte order of each sample. (input/output)\n");
 	printf("      --channels=#                   Number of channels in raw input\n");
-	printf("      --bps=#                        Number of bits per sample in raw input\n");
+	printf("      --bps={8|16|24|32}             Bits per sample (/channel) in raw input\n");
 	printf("      --sample-rate=#                Sample rate in Hz in raw input\n");
 	printf("      --input-size=#                 Size in bytes of raw input from stdin\n");
 	printf("\n");
