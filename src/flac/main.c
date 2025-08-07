@@ -1343,11 +1343,13 @@ void show_help(void)
 	printf("      --keep-foreign-metadata  Save/restore WAVE or AIFF non-audio chunks\n");
 	printf("      --keep-foreign-metadata-if-present     Save/restore WAVE or AIFF non-audio\n");
 	printf("                           but not return an error when no such chunks are found\n");
-	printf("      --skip={#|mm:ss.ss}      Skip the given initial samples for each input\n");
-	printf("      --until={#|[+|-]mm:ss.ss}     Stop at the given sample for each input file\n");
-	printf("  -s, --silent                 Do not write runtime encode/decode statistics\n");
+	printf("      --skip={#|MM:SS}         Skip the \# initial samples (for each input)\n");
+	printf("                           or: skip time MM:SS.ss (locale-dependent decimal point)\n");
+	printf("      --until=[+|-]{#|MM:SS}   Stop at given sample (for each input);\n");
+	printf("                           "+": relative to skip point; "-": omit LAST \# samples\n");
+	printf("  -s, --silent                 Do not print runtime encode/decode statistics\n");
 	printf("      --totally-silent         Do not print anything, including errors\n");
-	printf("  -w, --warnings-as-errors     Treat all warnings as errors\n");
+	printf("  -w, --warnings-as-errors     Treat (almost) all warnings as errors\n");
 	printf("\n");
 	printf("Decoding options:\n");
 	printf("  -F, --decode-through-errors  Continue decoding through stream errors\n");
@@ -1355,7 +1357,6 @@ void show_help(void)
 #if FLAC__HAS_OGG
 	printf("      --decode-chained-stream  Decode all links in a chained Ogg stream, not\n");
 	printf("                               just the first one\n");
-
 #endif
 	printf("      --apply-replaygain-which-is-not-lossless\n");
 	printf("                           Change volume of output for players that do not know\n");
